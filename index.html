@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<title>対処行動タイプ診断</title>
+<style>
+body {
+  font-family: sans-serif;
+  max-width: 900px;
+  margin: auto;
+  background: #f5f7fa;
+  padding: 20px;
+}
+h1 { text-align: center; }
+.question, #result {
+  background: white;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+}
+select {
+  width: 100%;
+  padding: 5px;
+  margin: 5px 0 15px;
+}
+button {
+  width: 100%;
+  padding: 15px;
+  font-size: 16px;
+}
+.type {
+  font-size: 22px;
+  font-weight: bold;
+}
+</style>
+</head>
 
+<body>
+
+<h1>対処行動タイプ診断</h1>
+
+<div class="question">
+<p>ストレスを感じたとき、次の行動はどのくらい当てはまりますか？</p>
+
+<script>
+const questions = [
+  ["plan","原因を考えて解決策を探す"],
+  ["plan","目標や計画を立て直す"],
+  ["emotion","気持ちを落ち着かせることを優先する"],
+  ["emotion","自分の感情を整理する時間をとる"],
+
+  ["approach","ストレスの原因に正面から向き合う"],
+  ["approach","努力量（練習量など）を増やす"],
+  ["avoid","一時的に考えないようにする"],
+  ["avoid","問題から距離を取る"],
+
+  ["introvert","一人で考えて対処する"],
+  ["extrovert","誰かと話すと楽になる"],
+  ["introvert","自分の中で気持ちを整理する"],
+  ["extrovert","周囲に相談したくなる"],
+
+  ["self","自分で気持ちや行動をコントロールする"],
+  ["self","自分なりの対処法を使う"],
+  ["support","助言や支えを求める"],
+  ["support","理解や応援があると楽になる"]
+];
+
+questions.forEach((q,i)=>{
+  document.write(`
+    <label>${i+1}. ${q[1]}</label>
+    <select data-type="${q[0]}">
+      <option value="0">まったくしない</option>
+      <option value="1">あまりしない</option>
+      <option value="2">たまにする</option>
+      <option value="3">よくする</option>
+    </select>
+  `);
+});
+</script>
+</div>
+
+<button onclick="diagnose()">診断する</button>
+
+<div id="result" style="display:none;"></div>
+
+<script>
+const advice = {
+  "PAIS":"計画を立てて冷静に対処できるのが強みです。行き詰まったときは短時間だけ誰かに相談し、感情を言葉にしてみましょう。",
+  "PAIR":"分析力と支援活用のバランスが取れています。相談するときは結論を先に話し、自分の考えを大切にしましょう。",
+  "PAOS":"行動力が高いタイプです。周囲を引っ張りすぎたと感じたら、一人で振り返る時間を作りましょう。",
+  "PAOR":"チームの力をうまく使えるタイプです。相談後は必ず自分の答えを出すことを意識しましょう。",
+
+  "PVIS":"慎重に物事を考えられます。回避した後に、次の一手を1つだけ決めると前に進みやすくなります。",
+  "PVIR":"サポートを受けながら慎重に進めるタイプです。励ましだけで終わらせず、具体的な行動を一緒に考えましょう。",
+  "PVOS":"切り替えが上手です。気分転換の後に必ず振り返りの時間を取りましょう。",
+  "PVOR":"周囲に助けられやすいタイプです。気を紛らわせた後、問題点を言葉にすることが大切です。",
+
+  "EAIS":"内省力が高いタイプです。感情を整理した後は、小さな行動に移すことを意識しましょう。",
+  "EAIR":"共感を力にできるタイプです。話した後に「次どうするか」を決めると安定します。",
+  "EAOS":"前向きで行動的です。調子が良いときほど無理をしすぎないよう注意しましょう。",
+  "EAOR":"ムードメーカータイプです。周囲に合わせすぎず、本音を考える時間を持ちましょう。",
+
+  "EVIS":"回復を優先できるタイプです。気持ちが落ち着いた後に次の行動を考えましょう。",
+  "EVIR":"繊細で支援を活かせます。不安を溜め込まず、行動目標を1つ立てましょう。",
+  "EVOS":"感情の切り替えが得意です。気分転換の時間を決めると安定します。",
+  "EVOR":"人と話して回避しやすいタイプです。話す→整理→行動の順を意識しましょう。"
+};
+
+function diagnose() {
+  let s = {P:0,E:0,A:0,V:0,I:0,O:0,S:0,R:0};
+
+  document.querySelectorAll("select").forEach(sel=>{
+    let v = Number(sel.value);
+    let t = sel.dataset.type;
+
+    if(t==="plan") s.P+=v;
+    if(t==="emotion") s.E+=v;
+    if(t==="approach") s.A+=v;
+    if(t==="avoid") s.V+=v;
+    if(t==="introvert") s.I+=v;
+    if(t==="extrovert") s.O+=v;
+    if(t==="self") s.S+=v;
+    if(t==="support") s.R+=v;
+  });
+
+  const type =
+    (s.P>=s.E?"P":"E") +
+    (s.A>=s.V?"A":"V") +
+    (s.I>=s.O?"I":"O") +
+    (s.S>=s.R?"S":"R");
+
+  document.getElementById("result").style.display="block";
+  document.getElementById("result").innerHTML = `
+    <h2>診断結果</h2>
+    <p class="type">${type} 型</p>
+    <p>${advice[type]}</p>
+    <p><strong>ポイント：</strong>今の強みを活かしつつ、反対側の対処行動も少しずつ取り入れてみましょう。</p>
+  `;
+}
+</script>
+
+</body>
+</html>
